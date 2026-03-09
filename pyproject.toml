@@ -1,0 +1,10 @@
+[project]
+name = "luna"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "google-genai>=1.66.0",
+    "mlflow>=3.10.1",
+]
