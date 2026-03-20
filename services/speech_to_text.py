@@ -1,0 +1,42 @@
+import whisper
+import os
+import torch
+import numpy as np
+
+
+class WhisperSerice:
+
+    def __init__(self, model_size="base"):
+        self.model_size = model_size
+
+        try:
+            self.device = "cpu"
+            if torch.cuda.is_available():
+                self.device = "cuda"
+            elif torch.backends.mps.is_available():
+                self.device = "mps"
+
+            self.model = whisper.load_model(model_size, device=self.device)
+
+        except Exception as e:
+            print(f"Error loading Whisper model: {e}")
+
+    def transcribe(self, audio_data):
+
+        if len(audio_data.shape) > 1:
+            audio_data = audio_data.flatten()
+
+        if audio_data.dtype != "float32":
+            audio_data = audio_data.astype(np.float32)
+
+        is_fp16 = self.device == "cuda"
+        result = self.model.transcribe(audio_data, fp16=is_fp16)
+
+        return result["text"].strip()
+
+
+if __name__ == "__main__":
+    whisper_service = WhisperSerice(model_size="base")
+    audio_path = "ref.mp3"
+    output = whisper_service.model.transcribe(audio_path)
+    print("Transcription:", output["text"].strip())
