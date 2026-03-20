@@ -1,5 +1,5 @@
 from utils.client import Client
-from utils.memory import save_history, load_history
+from utils.short_term_memory import save_history, load_history
 from tools.weather_tool import get_current_weather
 from tools.create_tools import create_tools
 
