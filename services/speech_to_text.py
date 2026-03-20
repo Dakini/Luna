@@ -2,7 +2,7 @@ import whisper
 import os
 import torch
 import numpy as np
-
+import time
 
 class WhisperSerice:
 
@@ -36,7 +36,10 @@ class WhisperSerice:
 
 
 if __name__ == "__main__":
-    whisper_service = WhisperSerice(model_size="base")
-    audio_path = "ref.mp3"
+    whisper_service = WhisperSerice(model_size="tiny")
+    audio_path = "ref_.wav"
+    s = time.time()
     output = whisper_service.model.transcribe(audio_path)
+    e = time.time()
+    print(f"Transcription took {e - s:.2f} seconds")
     print("Transcription:", output["text"].strip())
