@@ -1,7 +1,8 @@
-from pydantic import BaseModel, create_model
-from typing import Any, get_type_hints
-from pydantic.type_adapter import TypeAdapter
 import inspect
+from typing import Any, get_type_hints
+
+from pydantic import BaseModel, create_model
+from pydantic.type_adapter import TypeAdapter
 
 
 def make_tool_adapter(func):

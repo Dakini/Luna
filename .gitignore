@@ -221,3 +221,42 @@ __marimo__/
 *.wav
 *.mp3
 
+# Luna-specific files and directories
+
+# Reference repositories (learning only, not part of Luna)
+test/
+
+# Local documentation and learning materials
+read_me/
+
+# MLflow experiment tracking (Phase 0+)
+mlruns/
+.mlflow/
+outputs/
+
+# Agent state and memory (Phase 4+)
+state/
+memory/
+.luna/
+
+# Logs and debug files
+agent_logs.txt
+*.log
+debug/
+
+# Local testing and development
+.local/
+tmp/
+temp/
+
+# IDE and editor files (if not already covered)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+

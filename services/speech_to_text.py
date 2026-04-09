@@ -1,8 +1,10 @@
-import whisper
 import os
-import torch
-import numpy as np
 import time
+
+import numpy as np
+import torch
+import whisper
+
 
 class WhisperSerice:
 
