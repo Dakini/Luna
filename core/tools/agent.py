@@ -3,13 +3,20 @@ from copy import deepcopy
 from typing import Any, Optional
 
 from core.llm_client import LLMClient
-from core.prompts.system_prompt import SYSTEM_PROMPT
+
 from core.tools.complete_tool import CompleteTool
 from core.tools.message_classes import TextResult
+from core.personality.loader import load_soul
+from core.personality.system_prompt import SYSTEM_PROMPT
+from core.skills.loader import SkillLoader
+from core.commands.loader import CommandLoader
 from core.tools.weather import WeatherTool
+from core.tools.skill import SkillsTool
+from core.tools.command import CommandTool
 from core.tools.workspace_manager import WorkspaceManager
 from core.utils.dialog import DialogMessages
-from core.utils.tool_common import LLMTool, ToolImplOutput
+from core.utils.tool_common import LLMTool
+from core.types.agent_types import ToolImplOutput
 
 
 class Agent(LLMTool):
@@ -30,8 +37,31 @@ class Agent(LLMTool):
 
     def _get_system_prompt(self):
         """Get the system prompt, including any pending messages"""
-        print("asd")
-        return SYSTEM_PROMPT.format(workspace_root=self.workspace_manager.root)
+        prompt_parts = []
+        _soul_content = load_soul()
+
+        if not _soul_content:
+            _soul_content = "You are a helpful ai assistant"
+        prompt_parts.append(_soul_content)
+        _skill_descriptions = self.skill_loader.get_descriptions()
+
+        if _skill_descriptions:
+            prompt_parts.append(
+                f"\n## You have the following skills available which you can load with the skills tool:\n{_skill_descriptions}\n"
+            )
+        prompt_parts.append(
+            '''Don't confuse skills and commands:
+
+- Skills are discovered automatically, without user explicitly asking for it
+- Instructions to execute commands are given explicitly: "/test" -> "run the 'test' command"
+
+When you see "/command", use the tools to execute the command "command"'''
+        )
+
+        prompt = "\n".join(prompt_parts) + SYSTEM_PROMPT.format(
+            workspace_root=self.workspace_manager.root
+        )
+        return prompt
 
     def __init__(
         self,
@@ -51,6 +81,8 @@ class Agent(LLMTool):
         self.logger_for_agent_logs = logger_for_agent_logs
         self.max_output_tokens_per_turn = max_output_tokens_per_turn
         self.max_turns = max_turns
+        self.soul = load_soul()
+        self.skill_loader = SkillLoader(".")
 
         self.use_prompt_budgeting = use_prompt_budgeting
         self.ask_for_permission = ask_for_permission
@@ -70,7 +102,11 @@ class Agent(LLMTool):
 
         self.tools = [self.complete_tool]  # WE Will implement some soon!
 
-        self.tools += [WeatherTool()]
+        self.tools += [
+            SkillsTool(self.skill_loader),
+            CommandTool(CommandLoader(".")),
+            WeatherTool(),
+        ]
 
     def run_impl(
         self, tool_input: dict[str, Any], dialog_messages: list[DialogMessages]
@@ -98,7 +134,7 @@ class Agent(LLMTool):
             # check for duplicate tool names
             tool_names = [param.name for param in tool_params]
             sorted_names = sorted(tool_names)
-            print("Hey")
+
             for i in range(len(sorted_names) - 1):
                 if sorted_names[i] == sorted_names[i + 1]:
                     raise ValueError(f"Duplicate tool name found: {sorted_names[i]}")

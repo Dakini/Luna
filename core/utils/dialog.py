@@ -6,13 +6,18 @@ from typing import Any, List, Optional, cast
 
 import jsonschema
 
-from core.tools.message_classes import (AnthropicThinkingBlock,
-                                        AssistantContentBlock,
-                                        GeneralContentBlock, LLMMessages,
-                                        TextPrompt, TextResult, ToolCall,
-                                        ToolFormattedResult)
+from core.tools.message_classes import (
+    AnthropicThinkingBlock,
+    AssistantContentBlock,
+    GeneralContentBlock,
+    LLMMessages,
+    TextPrompt,
+    TextResult,
+    ToolCall,
+    ToolFormattedResult,
+)
 from core.utils.token_counter import ClaudeTokenCounter
-from core.utils.types import ToolCallParameters
+from core.types.agent_types import ToolCallParameters
 
 
 class DialogMessages:

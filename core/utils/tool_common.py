@@ -5,9 +5,8 @@ import jsonschema
 from anthropic import BadRequestError
 
 from core.tools.message_classes import ToolParam
-from core.tools.workspace_manager import WorkspaceManager
 from core.utils.dialog import DialogMessages
-from core.utils.types import ToolCallParameters, ToolImplOutput
+from core.types.agent_types import ToolCallParameters
 
 ToolInputSchema = dict[str, Any]
 

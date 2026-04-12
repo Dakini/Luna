@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
 from core.utils.dialog import DialogMessages
-from core.utils.tool_common import LLMTool, ToolImplOutput
+from core.utils.tool_common import LLMTool
+from core.types.agent_types import ToolImplOutput
 
 
 class WeatherTool(LLMTool):
