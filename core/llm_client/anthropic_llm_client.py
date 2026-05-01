@@ -10,22 +10,36 @@ from anthropic import APIConnectionError as AnthropicAPIConnectionError
 from anthropic import InternalServerError as AnthropicInternalServerError
 from anthropic import RateLimitError as AnthropicRateLimitError
 from anthropic._exceptions import OverloadedError as AnthropicOverloadedError
-from anthropic.types.message_create_params import (ToolChoiceToolChoiceAny,
-                                                   ToolChoiceToolChoiceAuto,
-                                                   ToolChoiceToolChoiceTool)
+from anthropic.types.message_create_params import (
+    ToolChoiceToolChoiceAny,
+    ToolChoiceToolChoiceAuto,
+    ToolChoiceToolChoiceTool,
+)
 
 from core.llm_client import LLMClient, recursively_remove_invoke_tags
-from core.tools.message_classes import (AnthropicRedactedThinkingBlock,
-                                        AnthropicTextBlock,
-                                        AnthropicThinkingBlock,
-                                        AnthropicToolParam,
-                                        AnthropicToolResultBlockParam,
-                                        AnthropicToolUseBlock,
-                                        AssistantContentBlock, LLMMessages,
-                                        TextPrompt, TextResult, ToolCall,
-                                        ToolFormattedResult, ToolParam)
+from core.tools.message_classes import (
+    AnthropicRedactedThinkingBlock,
+    AnthropicTextBlock,
+    AnthropicThinkingBlock,
+    AnthropicToolParam,
+    AnthropicToolResultBlockParam,
+    AnthropicToolUseBlock,
+    AssistantContentBlock,
+    LLMMessages,
+    TextPrompt,
+    TextResult,
+    ToolCall,
+    ToolFormattedResult,
+    ToolParam,
+)
+
+# import mlflow
+
+# mlflow.set_tracking_uri("http://127.0.0.1:5000")
+# mlflow.set_experiment("Luna-AI-Agent")
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
+# mlflow.anthropic.autolog()
 
 
 class AnthropicLLMClient(LLMClient):
@@ -57,6 +71,7 @@ class AnthropicLLMClient(LLMClient):
         tools: list[ToolParam] = [],
         tool_choice: dict[str, str] = None,
         thinking_tokens: int | None = None,
+        session_id: str | None = None,
     ) -> Tuple[list[AssistantContentBlock], dict[str, Any]]:
         """Generate a repsones from the LLM
         Args:
@@ -94,7 +109,7 @@ class AnthropicLLMClient(LLMClient):
 
         for retry in range(self.max_retries):
             try:
-                print(anthropic_messages)
+
                 response = self.client.messages.create(
                     max_tokens=max_tokens,
                     messages=anthropic_messages,
@@ -114,7 +129,7 @@ class AnthropicLLMClient(LLMClient):
                 AnthropicRateLimitError,
             ) as e:
                 if retry == self.max_retries - 1:
-                    print(f"Fialted Antrhopic request after {self.max_retries} reties")
+                    print(f"Failed Antrhopic request after {self.max_retries} reties")
                     raise e
                 else:
                     print("Retrying LLM request")
@@ -122,6 +137,7 @@ class AnthropicLLMClient(LLMClient):
 
         augment_messages = self.extract_augmented_messages(response)
         message_metadata = self.extract_metadata(response)
+
         return augment_messages, message_metadata
 
     def extract_augmented_messages(self, response):

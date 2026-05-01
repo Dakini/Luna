@@ -1,7 +1,7 @@
-from kokoro import KPipeline
-import soundfile as sf
 import sounddevice as sd
+import soundfile as sf
 import torch
+from kokoro import KPipeline
 
 pipeline = KPipeline(
     lang_code="b"

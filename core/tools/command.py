@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
+from core.commands.loader import CommandLoader
+from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
-from core.types.agent_types import ToolImplOutput
-from core.commands.loader import CommandLoader
 
 
 def process_template(template: str, arguments: str) -> str:

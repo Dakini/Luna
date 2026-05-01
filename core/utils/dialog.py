@@ -16,8 +16,8 @@ from core.tools.message_classes import (
     ToolCall,
     ToolFormattedResult,
 )
-from core.utils.token_counter import ClaudeTokenCounter
 from core.types.agent_types import ToolCallParameters
+from core.utils.token_counter import ClaudeTokenCounter
 
 
 class DialogMessages:

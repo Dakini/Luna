@@ -1,0 +1,3 @@
+{
+  "tool_output": "{\"name\":\"hello\",\"description\":\"Skill for ALL greeting requests\",\"metadata\":{\"name\":\"hello\",\"description\":\"Skill for ALL greeting requests\"},\"content\":\"# Hello Skill\\n\\nThis skill provides the greeting format you must follow.\\n\\n## How to greet\\n\\nAlways greet the user with:\\n\\n- A warm welcome\\n- Their name if mentioned\\n- A friendly emoji\\n\\n## Example greetings\\n\\n- \\\"Hello! Welcome! How can I help you today? \ud83d\udc4b\\\"\\n- \\\"Hi there! Great to see you! \ud83d\ude0a\\\"\"}"
+}

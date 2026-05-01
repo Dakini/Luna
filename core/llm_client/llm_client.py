@@ -35,6 +35,7 @@ class LLMClient:
         tools: list[ToolParam] = [],
         tool_choice: dict[str, str] | None = None,
         thinking_tokens: int | None = None,
+        session_id: str | None = None,
     ):
         """Generate a repsones from the LLM
         Args:

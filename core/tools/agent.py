@@ -2,21 +2,32 @@ import logging
 from copy import deepcopy
 from typing import Any, Optional
 
+from core.commands.loader import CommandLoader
 from core.llm_client import LLMClient
-
-from core.tools.complete_tool import CompleteTool
-from core.tools.message_classes import TextResult
 from core.personality.loader import load_soul
 from core.personality.system_prompt import SYSTEM_PROMPT
 from core.skills.loader import SkillLoader
-from core.commands.loader import CommandLoader
-from core.tools.weather import WeatherTool
-from core.tools.skill import SkillsTool
 from core.tools.command import CommandTool
+from core.tools.complete_tool import CompleteTool
+from core.tools.message_classes import TextResult
+from core.tools.skill import SkillsTool
+from core.tools.weather import WeatherTool
 from core.tools.workspace_manager import WorkspaceManager
+from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
-from core.types.agent_types import ToolImplOutput
+from core.types.agent_types import ModelConfig, AgentRuntimeConfig
+import mlflow
+from core.session.session_storage import (
+    save_agent_session,
+    load_agent_session,
+    StoredAgentSession,
+)
+
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_experiment("Luna-AI-Agent")
+
+mlflow.anthropic.autolog()
 
 
 class Agent(LLMTool):
@@ -73,6 +84,9 @@ When you see "/command", use the tools to execute the command "command"'''
         use_prompt_budgeting: bool = True,
         ask_for_permission: bool = False,
         docker_container_id: Optional[str] = None,
+        model_config: ModelConfig = None,
+        runtime_config: AgentRuntimeConfig = None,
+        session_id: str | None = None,
     ):
         """Initialise the agent"""
         super().__init__()
@@ -94,13 +108,30 @@ When you see "/command", use the tools to execute the command "command"'''
             use_prompt_budgeting=self.use_prompt_budgeting,
         )
 
+        self.model_config = model_config
+        self.runtime_config = runtime_config
+
+        self.turn_count = 0
+        self.tool_call_count = 0
+        self.cumulative_cost = 0.0
+        self.session_id = session_id if session_id else None
+        # if session_id:
+        #     # self.session = load_agent_session(session_id)
+        #     self.session_id = session_id else None
+
+        # elif model_config is not None:
+
+        #     self.session = StoredAgentSession(
+        #         model_config=model_config, runtime_config=runtime_config
+        #     )
+
         self.complete_tool = CompleteTool()
 
         if docker_container_id is not None:
             # We will add some docker support soon!
             pass
 
-        self.tools = [self.complete_tool]  # WE Will implement some soon!
+        self.tools = [self.complete_tool]
 
         self.tools += [
             SkillsTool(self.skill_loader),
@@ -108,9 +139,14 @@ When you see "/command", use the tools to execute the command "command"'''
             WeatherTool(),
         ]
 
+    # @mlflow.trace()
     def run_impl(
         self, tool_input: dict[str, Any], dialog_messages: list[DialogMessages]
     ) -> ToolImplOutput:
+        if self.session_id:
+            mlflow.update_current_trace(
+                metadata={"mlflow.trace.session": self.session_id}
+            )
 
         instruction = tool_input["instruction"]
         user_input_delimiter = f'{"-"*45} USER INPUT {"-"*45}\n{instruction}'
@@ -144,9 +180,11 @@ When you see "/command", use the tools to execute the command "command"'''
                     max_tokens=self.max_output_tokens_per_turn,
                     tools=tool_params,
                     system_prompt=self._get_system_prompt(),
+                    session_id=self.session_id,
                 )
 
                 self.dialog.add_model_response(model_response)
+
                 pending_tool_calls = self.dialog.get_pending_tool_calls()
 
                 if len(pending_tool_calls) == 0:
@@ -177,7 +215,9 @@ When you see "/command", use the tools to execute the command "command"'''
                     ) from exc
 
                 try:
+
                     result = tool.run(tool_call.tool_input, deepcopy(self.dialog))
+
                     tool_input_str = "\n".join(
                         [f" - {k}: {v}" for k, v in tool_call.tool_input.items()]
                     )
@@ -190,6 +230,8 @@ When you see "/command", use the tools to execute the command "command"'''
                     else:
                         tool_result = result
                     self.dialog.add_tool_call_result(tool_call, tool_result)
+
+                    self.turn_count += 1
 
                     if self.complete_tool.should_stop:
                         ## Add a fake model response so that the next turn is the
@@ -218,7 +260,7 @@ When you see "/command", use the tools to execute the command "command"'''
                         tool_result_message=interuppted_message,
                     )
 
-            except KeyboardInterrupt:
+            except KeyboardInterrupt as e:
                 self.interupped = True
                 self.dialog.add_model_response(
                     [

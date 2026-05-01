@@ -7,9 +7,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 from prompt_toolkit import prompt
 from prompt_toolkit.history import InMemoryHistory
+
 from core.llm_client.anthropic_llm_client import get_antropic_client
 from core.tools.agent import Agent
 from core.tools.workspace_manager import WorkspaceManager
+from core.types.agent_types import ModelConfig, UsageStats, AgentRuntimeConfig
+
+import uuid
+
 
 load_dotenv()
 
@@ -22,7 +27,17 @@ def main():
 
     if os.path.exists(args.logs_path):
         os.remove(args.logs_path)
-    args.verbose = True
+    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not anthropic_api_key:
+        print("Please set the ANTHROPIC_API_KEY environment variable.")
+        sys.exit(1)
+
+    # model_config = ModelConfig(
+    #     model=args.model,
+    #     api_key=os.getenv("ANTHROPIC_API_KEY"),
+    #     timeout_seconds=60 * 5,
+    #     temperature=0.0,
+    # )
 
     logger_for_agent = logging.getLogger("agent_logs")
     logger_for_agent.setLevel(logging.DEBUG)
@@ -31,11 +46,6 @@ def main():
         logger_for_agent.addHandler(logging.StreamHandler())
     else:
         logger_for_agent.propagate = False
-
-    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not anthropic_api_key:
-        print("Please set the ANTHROPIC_API_KEY environment variable.")
-        sys.exit(1)
 
     if args.verbose:
         logger_for_agent.info(
@@ -48,7 +58,8 @@ def main():
     workspace_manager = WorkspaceManager(
         root=workspace_path, container_workspace=args.use_container_workspace
     )
-
+    session_id = str(uuid.uuid4())
+    logger_for_agent.info(session_id)
     agent = Agent(
         client=client,
         workspace_manager=workspace_manager,
@@ -57,6 +68,7 @@ def main():
         max_turns=MAX_TURNS,
         ask_for_permission=args.needs_permission,
         docker_container_id=args.docker_container_id,
+        session_id=session_id,
     )
 
     history = InMemoryHistory()
