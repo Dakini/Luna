@@ -39,7 +39,9 @@ class CompleteTool(LLMTool):
     ) -> ToolImplOutput:
         assert tool_input["answer"], "Model returned empty answer"
         self.answer = tool_input["answer"]
-        return ToolImplOutput("Task completed", "Task Completed")
+        return ToolImplOutput(
+            tool_output="Task completed", tool_result_message="Task Completed"
+        )
 
     def get_tool_start_message(self, tool_input: dict[str, Any]):
         return ""

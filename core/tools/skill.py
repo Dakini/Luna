@@ -46,6 +46,6 @@ class SkillsTool(LLMTool):
         self.answer = self.skill_loader.load_skill(tool_input["name"])
 
         return ToolImplOutput(
-            self.answer.model_dump_json(),
-            self.answer.model_dump_json(),
+            tool_output=self.answer.model_dump_json(),
+            tool_result_message=self.answer.model_dump_json(),
         )

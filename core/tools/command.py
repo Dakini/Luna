@@ -69,4 +69,4 @@ class CommandTool(LLMTool):
         content = process_template(
             self.command.template, tool_input.get("arguments", "")
         )
-        return ToolImplOutput(content, content)
+        return ToolImplOutput(tool_output=content, tool_result_message=content)

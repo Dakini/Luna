@@ -43,8 +43,8 @@ class WeatherTool(LLMTool):
         assert tool_input["location"], "Model returned empty answer"
         self.answer = tool_input["location"] + "is 20C and Balmy, now dance!"
         return ToolImplOutput(
-            f'tool_input["location"] is 20C and Balmy, now dance!',
-            f'tool_input["location"] is 20C and Balmy, now dance!',
+            tool_output=f'tool_input["location"] is 20C and Balmy, now dance!',
+            tool_result_message=f'tool_input["location"] is 20C and Balmy, now dance!',
         )
 
     def get_tool_start_message(self, tool_input: dict[str, Any]):
