@@ -2,19 +2,18 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
-from anthropic.types import \
-    RedactedThinkingBlock as AnthropicRedactedThinkingBlock
+from anthropic.types import RedactedThinkingBlock as AnthropicRedactedThinkingBlock
 from anthropic.types import TextBlock as AnthropicTextBlock
 from anthropic.types import ThinkingBlock as AnthropicThinkingBlock
 from anthropic.types import ToolParam as AnthropicToolParam
-from anthropic.types import \
-    ToolResultBlockParam as AnthropicToolResultBlockParam
+from anthropic.types import ToolResultBlockParam as AnthropicToolResultBlockParam
 from anthropic.types import ToolUseBlock as AnthropicToolUseBlock
-from dataclasses_json import DataClassJsonMixin
 
 
-@dataclass
-class ToolParam(DataClassJsonMixin):
+from pydantic import BaseModel
+
+
+class ToolParam(BaseModel):
     """Internal Representation of a LLM Tool"""
 
     name: str
@@ -22,8 +21,7 @@ class ToolParam(DataClassJsonMixin):
     input_schema: dict[str, Any]
 
 
-@dataclass
-class ToolCall(DataClassJsonMixin):
+class ToolCall(BaseModel):
     """Internal Representation of a Tool Call"""
 
     tool_call_id: str
@@ -31,33 +29,29 @@ class ToolCall(DataClassJsonMixin):
     tool_input: dict[str, Any]
 
 
-@dataclass
-class ToolResult(DataClassJsonMixin):
+class ToolResult(BaseModel):
     """Internal Representation of result of a Tool Call"""
 
     tool_call_id: str
     tool_name: str
-    tool_input: dict[str, Any]
+    tool_input: str
 
 
-@dataclass
-class ToolFormattedResult(DataClassJsonMixin):
+class ToolFormattedResult(BaseModel):
     """Internal Representation of a formatted result of a tool call"""
 
     tool_call_id: str
     tool_name: str
-    tool_output: dict[str, Any]
+    tool_output: str
 
 
-@dataclass
-class TextPrompt(DataClassJsonMixin):
+class TextPrompt(BaseModel):
     """An internal representation of a user text prompt"""
 
     text: str
 
 
-@dataclass
-class TextResult(DataClassJsonMixin):
+class TextResult(BaseModel):
     """An internal representation of LLM-generated text"""
 
     text: str

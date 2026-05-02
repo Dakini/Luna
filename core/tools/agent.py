@@ -154,7 +154,6 @@ When you see "/command", use the tools to execute the command "command"'''
         instruction = tool_input["instruction"]
         user_input_delimiter = f'{"-"*45} USER INPUT {"-"*45}\n{instruction}'
         self.logger_for_agent_logs.info(f"\n{user_input_delimiter}\n")
-
         self.dialog.add_user_message(instruction)
         self.interupped = False
 
@@ -173,11 +172,11 @@ When you see "/command", use the tools to execute the command "command"'''
             # check for duplicate tool names
             tool_names = [param.name for param in tool_params]
             sorted_names = sorted(tool_names)
-
             for i in range(len(sorted_names) - 1):
                 if sorted_names[i] == sorted_names[i + 1]:
                     raise ValueError(f"Duplicate tool name found: {sorted_names[i]}")
             try:
+
                 model_response, metadata = self.client.generate(
                     messages=self.dialog.get_messages_for_llm_client(),
                     max_tokens=self.max_output_tokens_per_turn,
@@ -225,6 +224,7 @@ When you see "/command", use the tools to execute the command "command"'''
                         [f" - {k}: {v}" for k, v in tool_call.tool_input.items()]
                     )
                     log_message = f"Calling tool {tool_call.tool_name} with input:\n{tool_input_str}"
+                    print("Re", type(result))
                     log_message += f"\nTool output: \n{result}\n"
                     self.logger_for_agent_logs.info(log_message)
 
@@ -312,6 +312,7 @@ When you see "/command", use the tools to execute the command "command"'''
             tool_input["orientation_instruction"] = (
                 orientation_instruction  # This is an optional instruction that is only shown in the first turn, and is meant to give the agent some context about the user or the task
             )
+
         return self.run(tool_input, self.dialog)
 
     def clear(self):

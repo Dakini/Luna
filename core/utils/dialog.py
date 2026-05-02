@@ -1,10 +1,9 @@
 import copy
 import json
 import logging
-from dataclasses import dataclass, field
+
 from typing import Any, List, Optional, cast
 
-import jsonschema
 
 from core.tools.message_classes import (
     AnthropicThinkingBlock,
@@ -131,9 +130,12 @@ class DialogMessages:
             message: the message to add
             allow_append_to_tool_call_results: If true and the last message is a tool call result, then the message will be appended to that turn
         """
+        print("Hello")
+        print(message)
         if self.is_user_turn():
-            self._message_lists.append([TextPrompt(message)])
+            self._message_lists.append([TextPrompt(text=message)])
         else:
+            print("ASD")
             if allow_append_to_tool_call_results:
                 user_messages = self._message_lists[-1]
                 for user_message in user_messages:
@@ -142,8 +144,9 @@ class DialogMessages:
                             f"Last user turn already contains a text prompt: {user_message}"
                         )
 
-                user_messages.append(TextPrompt(message))
+                user_messages.append(TextPrompt(text=message))
             else:
+                print("Asdasddas")
                 self._assert_user_turn()
 
     def add_tool_call_result(self, parameters: ToolCallParameters, result: str):
@@ -155,6 +158,7 @@ class DialogMessages:
     ):
         """Add the results of multiple tool calls to the dialog"""
         self._assert_user_turn()
+
         self._message_lists.append(
             [
                 ToolFormattedResult(
@@ -182,12 +186,10 @@ class DialogMessages:
         return len(self._message_lists) % 2 == 1
 
     def __str__(self) -> str:
-        for message_list in self._message_lists:
-            for message in message_list:
-                print(message)
 
+        print("Is it here?")
         json_serialisable = [
-            [message.to_dict() for message in message_list]
+            [message.model_dump() for message in message_list]
             for message_list in self._message_lists
         ]
         return json.dumps(json_serialisable, indent=4)
@@ -210,9 +212,8 @@ class DialogMessages:
 
     def _assert_assistant_turn(self):
         assert (
-            self.is_assistant_turn(),
-            "Can only get/replace the last user prompt on assistants turn",
-        )
+            self.is_assistant_turn()
+        ), "Can only get/replace the last user prompt on assistants turn"
 
     def drop_final_assistant_turn(self):
         """Remove the final assistant turn
@@ -275,6 +276,6 @@ class DialogMessages:
         self._assert_assistant_turn()
         for i, message in enumerate(self._message_lists[-1]):
             if isinstance(message, TextPrompt):
-                self._message_lists[-1][i] = TextPrompt(new_prompt)
+                self._message_lists[-1][i] = TextPrompt(text=new_prompt)
                 return
         raise ValueError("No text prompt found in last user turn")

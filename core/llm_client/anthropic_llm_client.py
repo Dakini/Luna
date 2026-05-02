@@ -33,13 +33,8 @@ from core.tools.message_classes import (
     ToolParam,
 )
 
-# import mlflow
-
-# mlflow.set_tracking_uri("http://127.0.0.1:5000")
-# mlflow.set_experiment("Luna-AI-Agent")
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
-# mlflow.anthropic.autolog()
 
 
 class AnthropicLLMClient(LLMClient):
@@ -121,6 +116,7 @@ class AnthropicLLMClient(LLMClient):
                     extra_body=extra_body,
                     extra_headers=extra_headers,
                 )
+
                 break
             except (
                 AnthropicAPIConnectionError,
@@ -136,6 +132,7 @@ class AnthropicLLMClient(LLMClient):
                     time.sleep(5 * random.uniform(0.8, 1.2))
 
         augment_messages = self.extract_augmented_messages(response)
+
         message_metadata = self.extract_metadata(response)
 
         return augment_messages, message_metadata
@@ -153,8 +150,10 @@ class AnthropicLLMClient(LLMClient):
             message_str_type = str(type(message))
 
             if message_str_type == str(AnthropicTextBlock):
+
                 message = cast(AnthropicTextBlock, message)
-                augment_messages.append(TextResult(message.text))
+
+                augment_messages.append(TextResult(text=message.text))
 
             elif message_str_type == str(AnthropicRedactedThinkingBlock):
                 augment_messages.append(message)
@@ -259,11 +258,13 @@ class AnthropicLLMClient(LLMClient):
 
         elif str(type(message)) == str(ToolFormattedResult):
             message = cast(ToolFormattedResult, message)
+            print("here", message)
             message_content = AnthropicToolResultBlockParam(
                 type="tool_result",
                 tool_use_id=message.tool_call_id,
                 content=message.tool_output,
             )
+            print("Rarw")
         elif str(type(message)) == str(AnthropicRedactedThinkingBlock):
             message = cast(AnthropicRedactedThinkingBlock, message)
             message_content = message
