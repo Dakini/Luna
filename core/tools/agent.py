@@ -17,7 +17,9 @@ from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
 from core.types.agent_types import ModelConfig, AgentRuntimeConfig
+
 import mlflow
+from mlflow.entities import SpanType
 from core.session.session_storage import (
     save_agent_session,
     load_agent_session,
@@ -139,10 +141,11 @@ When you see "/command", use the tools to execute the command "command"'''
             WeatherTool(),
         ]
 
-    # @mlflow.trace()
+    @mlflow.trace(span_type=SpanType.AGENT)
     def run_impl(
         self, tool_input: dict[str, Any], dialog_messages: list[DialogMessages]
     ) -> ToolImplOutput:
+
         if self.session_id:
             mlflow.update_current_trace(
                 metadata={"mlflow.trace.session": self.session_id}

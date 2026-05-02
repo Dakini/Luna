@@ -182,8 +182,12 @@ class DialogMessages:
         return len(self._message_lists) % 2 == 1
 
     def __str__(self) -> str:
+        for message_list in self._message_lists:
+            for message in message_list:
+                print(message)
+
         json_serialisable = [
-            [message.to__dict() for message in message_list]
+            [message.to_dict() for message in message_list]
             for message_list in self._message_lists
         ]
         return json.dumps(json_serialisable, indent=4)

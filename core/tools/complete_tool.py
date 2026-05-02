@@ -3,6 +3,8 @@ from typing import Any, Optional
 from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
+import mlflow
+from mlflow.entities import SpanType
 
 
 class CompleteTool(LLMTool):
@@ -31,6 +33,7 @@ class CompleteTool(LLMTool):
     def reset(self):
         self.answer = ""
 
+    @mlflow.trace(span_type=SpanType.TOOL)
     def run_impl(
         self, tool_input: dict[str, Any], dialog_messages: Optional[DialogMessages]
     ) -> ToolImplOutput:

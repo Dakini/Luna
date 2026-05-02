@@ -4,6 +4,8 @@ from core.skills.loader import SkillLoader
 from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
+import mlflow
+from mlflow.entities import SpanType
 
 
 class SkillsTool(LLMTool):
@@ -36,6 +38,7 @@ class SkillsTool(LLMTool):
     def get_tool_start_message(self, tool_input: dict[str, Any]):
         return ""
 
+    @mlflow.trace(span_type=SpanType.TOOL)
     def run_impl(
         self, tool_input: dict[str, Any], dialog_messages: Optional[DialogMessages]
     ) -> ToolImplOutput:
