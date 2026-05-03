@@ -8,8 +8,6 @@ from anthropic.types import ThinkingBlock as AnthropicThinkingBlock
 from anthropic.types import ToolParam as AnthropicToolParam
 from anthropic.types import ToolResultBlockParam as AnthropicToolResultBlockParam
 from anthropic.types import ToolUseBlock as AnthropicToolUseBlock
-
-
 from pydantic import BaseModel
 
 

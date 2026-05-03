@@ -1,9 +1,7 @@
 import copy
 import json
 import logging
-
 from typing import Any, List, Optional, cast
-
 
 from core.tools.message_classes import (
     AnthropicThinkingBlock,

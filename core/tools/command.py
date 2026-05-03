@@ -1,11 +1,12 @@
 from typing import Any, Optional
 
+import mlflow
+from mlflow.entities import SpanType
+
 from core.commands.loader import CommandLoader
 from core.types.agent_types import ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
-import mlflow
-from mlflow.entities import SpanType
 
 
 def process_template(template: str, arguments: str) -> str:

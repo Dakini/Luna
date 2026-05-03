@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import uuid
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,10 +12,7 @@ from prompt_toolkit.history import InMemoryHistory
 from core.llm_client.anthropic_llm_client import get_antropic_client
 from core.tools.agent import Agent
 from core.tools.workspace_manager import WorkspaceManager
-from core.types.agent_types import ModelConfig, UsageStats, AgentRuntimeConfig
-
-import uuid
-
+from core.types.agent_types import AgentRuntimeConfig, ModelConfig, UsageStats
 
 load_dotenv()
 

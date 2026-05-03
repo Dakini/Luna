@@ -1,8 +1,8 @@
 import json
-from pydantic import BaseModel, Field, ConfigDict
-
 from pathlib import Path
 from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from core.types.agent_types import (
     AgentPermissions,

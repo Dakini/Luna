@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Tuple
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UsageStats(BaseModel):
@@ -159,35 +159,10 @@ class ToolCallParameters(BaseModel):
     tool_input: Any
 
 
-# from dataclasses import dataclass, field
-
-
-# @dataclass
-# class ToolCallParameters:
-#     tool_call_id: str
-#     tool_name: str
-#     tool_input: Any
-
-
 class ToolImplOutput(BaseModel):
     tool_output: str
     tool_result_message: str = ""
     auxiliary_data: dict[str, Any] = Field(default_factory=dict)
-
-
-# @dataclass
-# class ToolImplOutput:
-#     """Output from an LLM tool implementation.
-
-#     Attributes:
-#         tool_output: The main output string that will be shown to the model.
-#         tool_result_message: A description of what the tool did, for logging purposes.
-#         auxiliary_data: Additional data that the tool wants to pass along for logging only.
-#     """
-
-#     tool_output: str
-#     tool_result_message: str
-#     auxiliary_data: dict[str, Any] = field(default_factory=dict)
 
 
 if __name__ == "__main__":

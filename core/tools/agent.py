@@ -2,29 +2,31 @@ import logging
 from copy import deepcopy
 from typing import Any, Optional
 
+import mlflow
+from mlflow.entities import SpanType
+
 from core.commands.loader import CommandLoader
 from core.llm_client import LLMClient
 from core.personality.loader import load_soul
 from core.personality.system_prompt import SYSTEM_PROMPT
+from core.session.session_storage import (
+    StoredAgentSession,
+    load_agent_session,
+    save_agent_session,
+)
 from core.skills.loader import SkillLoader
+from core.tools.bash_tool import create_bash_tool
 from core.tools.command import CommandTool
 from core.tools.complete_tool import CompleteTool
 from core.tools.message_classes import TextResult
+from core.tools.sequential_thinking import SequentialThinkingTool
 from core.tools.skill import SkillsTool
 from core.tools.weather import WeatherTool
 from core.tools.workspace_manager import WorkspaceManager
-from core.types.agent_types import ToolImplOutput
+from core.types.agent_types import AgentRuntimeConfig, ModelConfig, ToolImplOutput
 from core.utils.dialog import DialogMessages
 from core.utils.tool_common import LLMTool
-from core.types.agent_types import ModelConfig, AgentRuntimeConfig
-
-import mlflow
-from mlflow.entities import SpanType
-from core.session.session_storage import (
-    save_agent_session,
-    load_agent_session,
-    StoredAgentSession,
-)
+from core.tools.str_replace_tool import StrReplaceEditorTool
 
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_experiment("Luna-AI-Agent")
@@ -129,11 +131,16 @@ When you see "/command", use the tools to execute the command "command"'''
 
         self.complete_tool = CompleteTool()
 
-        if docker_container_id is not None:
-            # We will add some docker support soon!
-            pass
+        bash_tool = create_bash_tool(
+            ask_user_permission=ask_for_permission,
+        )
 
-        self.tools = [self.complete_tool]
+        self.tools = [
+            bash_tool,
+            self.complete_tool,
+            StrReplaceEditorTool(workspace_manager=workspace_manager),
+            SequentialThinkingTool(verbose=True),
+        ]
 
         self.tools += [
             SkillsTool(self.skill_loader),

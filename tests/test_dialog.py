@@ -2,8 +2,12 @@ import logging
 
 import pytest
 
-from core.tools.message_classes import (TextPrompt, TextResult, ToolCall,
-                                        ToolFormattedResult)
+from core.tools.message_classes import (
+    TextPrompt,
+    TextResult,
+    ToolCall,
+    ToolFormattedResult,
+)
 from core.utils.dialog import DialogMessages
 from core.utils.types import ToolCallParameters
 
